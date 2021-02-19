@@ -15,7 +15,7 @@ const buildControls=(props)=>{
     {controls.map(ctrl=>{
        return <BuildControl disabled={props.disabled[ctrl.type]} ingredientAdded={()=>props.ingredientAdded(ctrl.type)} ingredientRemoved={()=>props.ingredientRemoved(ctrl.type)} key={ctrl.label} label={ctrl.label} />
     })}
-    <button disabled={props.orderStatus} className={classes.OrderButton}>ORDER NOW</button>
+    <button onClick={props.ordered} disabled={props.orderStatus} className={classes.OrderButton}>ORDER NOW</button>
     </div>)
 }
 
