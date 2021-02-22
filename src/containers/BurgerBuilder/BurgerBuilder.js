@@ -16,15 +16,21 @@ const INGREDIENT_PRICES ={
 class BurgerBuilder extends Component {
 
     state={
-        ingredients:{
-            salad:0,
-            bacon:0,
-            cheese:0,
-            meat:0
-        },
+        ingredients:null,
         totalPrice: 40,
         purchasing: false,
-        loading: false
+        loading: false,
+        error:false
+    }
+
+    componentDidMount(){
+        axios.get('https://react-my-burger-251f7-default-rtdb.firebaseio.com/ingredients.json')
+        .then(response=>{
+            this.setState({ingredients:response.data})
+        })
+        .catch(err=>{
+            this.setState({error:true})
+        })
     }
 
     addIngredientHandler=(type)=>{
@@ -101,10 +107,29 @@ class BurgerBuilder extends Component {
         for(let key in disabledInfo){
             disabledInfo[key]=disabledInfo[key]<=0
         }
-        let orderSummary= <OrderSummary price={this.state.totalPrice} purchaseCancled={this.purchaseCancelHandler} purchaseContinued={this.purchaseContinueHandler} ingredients={this.state.ingredients}/> ;
+        let orderSummary = null;
+
+        let burger = this.state.error? <p style={{textAlign:'center'}}>Ingredients can't be fetched!</p>:<Spinner/>
+        if(this.state.ingredients)
+        {
+            burger=<Auxiliary>
+        <Burger ingredients={this.state.ingredients} />
+        <BuildControls
+        price={this.state.totalPrice}
+        ingredientAdded={this.addIngredientHandler}
+        ingredientRemoved={this.removeIngredientHandler}
+        disabled={disabledInfo}
+        orderStatus={orderStatus}
+        ordered={this.purchaseHandler}/>
+        </Auxiliary>
+
+        orderSummary= <OrderSummary price={this.state.totalPrice} purchaseCancled={this.purchaseCancelHandler} purchaseContinued={this.purchaseContinueHandler} ingredients={this.state.ingredients}/> ;
+        }
+
         if(this.state.loading){
             orderSummary=<Spinner/>;
         }
+
         const status=Object.keys(disabledInfo).map(igKey=>disabledInfo[igKey]).findIndex(el=>el===false);
         let orderStatus;
         if(status===-1)
@@ -117,15 +142,7 @@ class BurgerBuilder extends Component {
                 <Modal modalClosed={this.purchaseCancelHandler} show={this.state.purchasing} >
                     {orderSummary}
                 </Modal>
-                <Burger ingredients={this.state.ingredients} />
-                <BuildControls
-                price={this.state.totalPrice}
-                    ingredientAdded={this.addIngredientHandler}
-                    ingredientRemoved={this.removeIngredientHandler}
-                    disabled={disabledInfo}
-                    orderStatus={orderStatus}
-                    ordered={this.purchaseHandler}
-                />
+                {burger}
             </Auxiliary>
         );
     }
