@@ -109,6 +109,13 @@ class BurgerBuilder extends Component {
         }
         let orderSummary = null;
 
+        const status=Object.keys(disabledInfo).map(igKey=>disabledInfo[igKey]).findIndex(el=>el===false);
+        let orderStatus;
+        if(status===-1)
+        orderStatus=true;
+        else
+        orderStatus=false;
+
         let burger = this.state.error? <p style={{textAlign:'center'}}>Ingredients can't be fetched!</p>:<Spinner/>
         if(this.state.ingredients)
         {
@@ -129,13 +136,6 @@ class BurgerBuilder extends Component {
         if(this.state.loading){
             orderSummary=<Spinner/>;
         }
-
-        const status=Object.keys(disabledInfo).map(igKey=>disabledInfo[igKey]).findIndex(el=>el===false);
-        let orderStatus;
-        if(status===-1)
-        orderStatus=true;
-        else
-        orderStatus=false;
 
         return(
             <Auxiliary>
